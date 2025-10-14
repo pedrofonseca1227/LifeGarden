@@ -1,19 +1,16 @@
-// Aqui ficará a configuração do Firebase futuramente
-// Exemplo:
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
-// import { initializeApp } from "firebase/app";
-// import { getAuth } from "firebase/auth";
-// import { getFirestore } from "firebase/firestore";
+const firebaseConfig = {
+  apiKey: "AIzaSyD6dSIU1j0FI42SeVSYorCiRAX9gsxo97U",
+  authDomain: "life-garden-2d8d9.firebaseapp.com",
+  projectId: "life-garden-2d8d9",
+  storageBucket: "life-garden-2d8d9.firebasestorage.app",
+  messagingSenderId: "669282732493",
+  appId: "1:669282732493:web:2f548df6e3ac6d28691c84"
+};
 
-// const firebaseConfig = {
-//   apiKey: "SUA_API_KEY",
-//   authDomain: "seu-dominio.firebaseapp.com",
-//   projectId: "life-garden",
-//   storageBucket: "life-garden.appspot.com",
-//   messagingSenderId: "...",
-//   appId: "..."
-// };
-
-// const app = initializeApp(firebaseConfig);
-// export const auth = getAuth(app);
-// export const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
