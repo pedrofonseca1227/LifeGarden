@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD6dSIU1j0FI42SeVSYorCiRAX9gsxo97U",
-  authDomain: "life-garden-2d8d9.firebaseapp.com",
-  projectId: "life-garden-2d8d9",
-  storageBucket: "life-garden-2d8d9.firebasestorage.app",
-  messagingSenderId: "669282732493",
-  appId: "1:669282732493:web:2f548df6e3ac6d28691c84"
+  apiKey: "AIzaSyAkjZ2D2IV4GupCu3_vnEWpO5PCnLdMam8",
+  authDomain: "life-garden-211a0.firebaseapp.com",
+  projectId: "life-garden-211a0",
+  storageBucket: "life-garden-211a0.firebasestorage.app",
+  messagingSenderId: "773535448845",
+  appId: "1:773535448845:web:6511d887de3296b6b17a44"
 };
 
 const app = initializeApp(firebaseConfig);
