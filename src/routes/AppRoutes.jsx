@@ -7,6 +7,8 @@ import Login from '../pages/Login.jsx';
 import Cadastro from '../pages/Cadastro.jsx';
 import Sobre from '../pages/Sobre.jsx';
 import NovoProduto from '../pages/NovoProduto.jsx';
+import MeusProdutos from '../pages/MeusProdutos';
+import EditarProduto from '../pages/EditarProduto';
 
 const AppRoutes = () => {
   return (
@@ -19,6 +21,8 @@ const AppRoutes = () => {
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/novo-produto" element={<NovoProduto />} />
+          <Route path="/meus-produtos" element={<MeusProdutos />} />
+          <Route path="/editar-produto/:id" element={<EditarProduto />} />
         </Routes>
       </main>
       <Footer />

@@ -1,6 +1,7 @@
 import { db, storage } from './firebaseConfig';
-import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, where, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 
 const produtosRef = collection(db, 'produtos');
 
@@ -28,4 +29,23 @@ export const uploadImage = async (file) => {
   const url = await getDownloadURL(storageRef);
 
   return url;
+};
+
+// Buscar produtos de um produtor específico
+export const getProdutosByUser = async (email) => {
+  const produtosRef = collection(db, "produtos");
+  const q = query(produtosRef, where("produtorEmail", "==", email));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+};
+
+// Excluir produto
+export const deleteProduto = async (id) => {
+  await deleteDoc(doc(db, "produtos", id));
+};
+
+// Editar produto
+export const updateProduto = async (id, dadosAtualizados) => {
+  const produtoRef = doc(db, 'produtos', id);
+  await updateDoc(produtoRef, dadosAtualizados);
 };
