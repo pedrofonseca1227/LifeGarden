@@ -10,12 +10,13 @@ import {
   or
 } from "firebase/firestore";
 
-// Enviar nova mensagem
-export const sendMessage = async (chatId, remetenteEmail, texto) => {
+// Enviar nova mensagem com remetente e destinatário
+export const sendMessage = async (chatId, remetenteEmail, destinatarioEmail, texto) => {
   const mensagensRef = collection(db, "mensagens");
   await addDoc(mensagensRef, {
     chatId,
     remetenteEmail,
+    destinatarioEmail,
     texto,
     createdAt: new Date(),
   });

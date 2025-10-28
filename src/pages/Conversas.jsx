@@ -1,107 +1,129 @@
 import React, { useEffect, useState } from "react";
-import { useAuth } from "../hooks/useAuth";
 import { getUserChats } from "../services/messageService";
+import { useAuth } from "../hooks/useAuth";
 import { Link } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../services/firebaseConfig";
+
+// 🔹 Imagem padrão local (adicione o arquivo em src/assets/sem-imagem.png)
+import noImage from "../assets/sem-imagem.png";
 
 const Conversas = () => {
   const { user } = useAuth();
   const [conversas, setConversas] = useState([]);
 
   useEffect(() => {
-    const fetchConversas = async () => {
+    const fetchChats = async () => {
       if (!user) return;
 
-      const data = await getUserChats(user.email);
+      const chats = (await getUserChats(user.email)) || [];
 
-      // Buscar detalhes do produto de cada chat (nome e imagem)
-      const conversasComProduto = await Promise.all(
-        data.map(async (c) => {
-          const produtoRef = doc(db, "produtos", c.chatId);
+      // 🔍 Busca o produto relacionado a cada chat
+      const chatsComProduto = await Promise.all(
+        chats.map(async (chat) => {
+          const produtoRef = doc(db, "produtos", chat.chatId);
           const produtoSnap = await getDoc(produtoRef);
-          const produto = produtoSnap.exists() ? produtoSnap.data() : {};
-          return { ...c, produto };
+
+          return {
+            ...chat,
+            produto: produtoSnap.exists() ? produtoSnap.data() : null,
+          };
         })
       );
 
-      setConversas(conversasComProduto);
+      setConversas(chatsComProduto);
     };
 
-    fetchConversas();
+    fetchChats();
   }, [user]);
 
-  if (!user) return <p>Você precisa estar logado para ver suas conversas.</p>;
+  if (!user)
+    return (
+      <p style={{ color: "#fff" }}>Faça login para ver suas conversas.</p>
+    );
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2 style={{ color: "#d4ed91" }}>Minhas Conversas 💬</h2>
+    <div style={{ padding: "20px", color: "#fff" }}>
+      <h2>💬 Minhas Conversas</h2>
 
       {conversas.length === 0 ? (
         <p>Nenhuma conversa encontrada.</p>
       ) : (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "15px",
-            marginTop: "20px",
-          }}
-        >
-          {conversas.map((c) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {(conversas || []).map((c, i) => (
             <Link
-              key={c.chatId}
-              to={`/chat/${c.chatId}`}
+              key={`${c.chatId || "semId"}-${i}`}
+              to={`/chat/${c.chatId || ""}`}
               style={{
-                backgroundColor: "#1f1f1f",
-                borderRadius: "10px",
-                padding: "15px",
-                color: "white",
-                textDecoration: "none",
                 display: "flex",
                 alignItems: "center",
-                gap: "15px",
-                boxShadow: "0 0 8px rgba(0,0,0,0.3)",
+                gap: "10px",
+                backgroundColor: "#1f1f1f",
+                borderRadius: "10px",
+                padding: "10px",
+                textDecoration: "none",
+                color: "white",
+                transition: "background 0.2s ease",
               }}
             >
-              {c.produto?.imagem ? (
-                <img
-                  src={c.produto.imagem}
-                  alt={c.produto.nome}
+              {/* 🖼️ Miniatura do produto */}
+              <img
+                src={
+                  c.produto?.imagens?.[0] ||
+                  noImage // ✅ imagem local padrão
+                }
+                alt={c.produto?.nome || "Produto"}
+                style={{
+                  width: "70px",
+                  height: "70px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                }}
+              />
+
+              {/* 💬 Informações da conversa */}
+              <div style={{ flex: 1 }}>
+                <h4
                   style={{
-                    width: "70px",
-                    height: "70px",
-                    objectFit: "cover",
-                    borderRadius: "8px",
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: "70px",
-                    height: "70px",
-                    backgroundColor: "#333",
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#aaa",
-                    fontSize: "12px",
+                    margin: 0,
+                    color: "#d4ed91",
+                    fontSize: "16px",
+                    fontWeight: "500",
                   }}
                 >
-                  Sem imagem
-                </div>
-              )}
-
-              <div>
-                <h3 style={{ margin: 0 }}>
                   {c.produto?.nome || "Produto removido"}
-                </h3>
-                <p style={{ margin: "5px 0", color: "#bbb" }}>
-                  {c.ultimoTexto?.length > 40
-                    ? c.ultimoTexto.slice(0, 40) + "..."
-                    : c.ultimoTexto}
+                </h4>
+
+                <p
+                  style={{
+                    margin: "4px 0",
+                    fontSize: "14px",
+                    color: "#aaa",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    maxWidth: "250px",
+                  }}
+                >
+                  {c.ultimoRemetente === user.email
+                    ? `Você: ${String(c.ultimaMensagem || "")}`
+                    : String(c.ultimaMensagem || "")}
                 </p>
+
+                {/* 🕒 Data da última mensagem */}
+                {c.createdAt && (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#777",
+                      margin: 0,
+                    }}
+                  >
+                    {c.createdAt.toDate
+                      ? c.createdAt.toDate().toLocaleString()
+                      : new Date(c.createdAt).toLocaleString()}
+                  </p>
+                )}
               </div>
             </Link>
           ))}

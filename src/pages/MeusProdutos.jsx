@@ -1,97 +1,81 @@
 import React, { useEffect, useState } from "react";
-import { getProdutosByUser, deleteProduto } from "../services/productService";
 import { useAuth } from "../hooks/useAuth";
-import { Link } from 'react-router-dom';
-
+import { getProdutosByUser, deleteProduto } from "../services/productService";
+import { Link } from "react-router-dom";
 
 const MeusProdutos = () => {
   const { user } = useAuth();
   const [produtos, setProdutos] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (user?.email) {
-        const data = await getProdutosByUser(user.email);
-        setProdutos(data);
-      }
+    const fetchProdutos = async () => {
+      if (!user) return;
+      const data = await getProdutosByUser(user.email);
+      setProdutos(data);
     };
-    fetchData();
+    fetchProdutos();
   }, [user]);
 
   const handleDelete = async (id) => {
-    if (confirm("Tem certeza que deseja excluir este produto?")) {
+    if (window.confirm("Tem certeza que deseja excluir este produto?")) {
       await deleteProduto(id);
       setProdutos(produtos.filter((p) => p.id !== id));
     }
   };
 
-  if (!user) {
-    return <p>Você precisa estar logado para acessar esta página.</p>;
-  }
-
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Meus Produtos 🌾</h2>
-
+    <div style={{ padding: "20px", color: "#fff" }}>
+      <h2>🧺 Meus Produtos</h2>
       {produtos.length === 0 ? (
-        <p>Você ainda não cadastrou nenhum produto.</p>
+        <p>Nenhum produto cadastrado.</p>
       ) : (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
             gap: "20px",
           }}
         >
-          {produtos.map((p) => (
+          {produtos.map((produto) => (
             <div
-              key={p.id}
+              key={produto.id}
               style={{
                 backgroundColor: "#1f1f1f",
-                color: "#fff",
+                borderRadius: "10px",
                 padding: "15px",
-                borderRadius: "8px",
+                boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
               }}
             >
-              {p.imagem && (
-                <img
-                  src={p.imagem}
-                  alt={p.nome}
-                  style={{
-                    width: "100%",
-                    height: "180px",
-                    objectFit: "cover",
-                    borderRadius: "6px",
-                  }}
-                />
-              )}
-              <h3 style={{ margin: "10px 0" }}>{p.nome}</h3>
-              <p><strong>Preço:</strong> R$ {p.preco.toFixed(2)}</p>
-              <p><strong>Descrição:</strong> {p.descricao}</p>
-          
-              <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+              {/* 🖼️ Exibir primeira imagem */}
+              <img
+                src={
+                  produto.imagens?.[0] ||
+                  "https://via.placeholder.com/300x200?text=Sem+imagem"
+                }
+                alt={produto.nome}
+                style={{
+                  width: "100%",
+                  height: "160px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  marginBottom: "10px",
+                }}
+              />
+
+              <h3 style={{ color: "#d4ed91" }}>{produto.nome}</h3>
+              <p><strong>Preço:</strong> R$ {produto.preco.toFixed(2)}</p>
+              <p style={{ fontSize: "14px" }}>{produto.descricao}</p>
+
+              <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
                 <Link
-                  to={`/editar-produto/${p.id}`}
-                  style={{
-                    backgroundColor: "#3498db",
-                    color: "#fff",
-                    padding: "8px 12px",
-                    borderRadius: "5px",
-                    textDecoration: "none",
-                  }}
+                  to={`/editar-produto/${produto.id}`}
+                  style={btnStyle("#4CAF50")}
                 >
                   Editar
                 </Link>
                 <button
-                  onClick={() => handleDelete(p.id)}
-                  style={{
-                    backgroundColor: "#e74c3c",
-                    color: "#fff",
-                    border: "none",
-                    padding: "8px 12px",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                  }}
+                  onClick={() => handleDelete(produto.id)}
+                  style={btnStyle("red")}
                 >
                   Excluir
                 </button>
@@ -103,5 +87,15 @@ const MeusProdutos = () => {
     </div>
   );
 };
+
+const btnStyle = (color) => ({
+  backgroundColor: color,
+  color: "white",
+  border: "none",
+  borderRadius: "6px",
+  padding: "6px 10px",
+  cursor: "pointer",
+  textDecoration: "none",
+});
 
 export default MeusProdutos;
