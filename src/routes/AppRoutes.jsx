@@ -11,6 +11,8 @@ import MeusProdutos from '../pages/MeusProdutos';
 import EditarProduto from '../pages/EditarProduto';
 import Chat from '../pages/Chat';
 import Conversas from "../pages/Conversas";
+import Perfil from '../pages/Perfil.jsx';
+import DetalhesProduto from '../pages/DetalhesProduto.jsx';
 
 
 const AppRoutes = () => {
@@ -28,6 +30,8 @@ const AppRoutes = () => {
           <Route path="/editar-produto/:id" element={<EditarProduto />} />
           <Route path="/chat/:chatId" element={<Chat />} />
           <Route path="/conversas" element={<Conversas />} />
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/produto/:id" element={<DetalhesProduto />} />
         </Routes>
       </main>
       <Footer />

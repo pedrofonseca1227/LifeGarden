@@ -17,12 +17,11 @@ const Home = () => {
     fetchData();
   }, []);
 
-  // 🧮 Filtro dinâmico local (sem precisar refazer query no Firestore)
+  // 🧮 Filtro dinâmico local
   const produtosFiltrados = produtos.filter((p) => {
     const nomeMatch = p.nome?.toLowerCase().includes(busca.toLowerCase());
     const descMatch = p.descricao?.toLowerCase().includes(busca.toLowerCase());
-    const categoriaMatch =
-      categoria === "todos" || p.categoria === categoria;
+    const categoriaMatch = categoria === "todos" || p.categoria === categoria;
     const precoMinMatch = precoMin ? p.preco >= parseFloat(precoMin) : true;
     const precoMaxMatch = precoMax ? p.preco <= parseFloat(precoMax) : true;
 
@@ -135,55 +134,46 @@ const ProdutoCard = ({ produto }) => {
         padding: "15px",
         color: "#fff",
         boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
-        position: "relative",
         overflow: "hidden",
       }}
     >
-      {/* 🖼️ Carrossel manual */}
-      <div style={{ position: "relative", height: "180px", overflow: "hidden" }}>
-        <img
-          src={imagens[index]}
-          alt={produto.nome}
-          style={{
-            width: "100%",
-            height: "180px",
-            objectFit: "cover",
-            borderRadius: "8px",
-            transition: "opacity 0.4s ease-in-out",
-          }}
-        />
-
-        {total > 1 && (
-          <>
-            <button onClick={prev} style={btnStyle("left")}>‹</button>
-            <button onClick={next} style={btnStyle("right")}>›</button>
-          </>
-        )}
-      </div>
-
-      <h3 style={{ margin: "10px 0", color: "#d4ed91" }}>{produto.nome}</h3>
-      <p><strong>Preço:</strong> R$ {produto.preco.toFixed(2)}</p>
-      <p><strong>Descrição:</strong> {produto.descricao}</p>
-      <p style={{ fontSize: "13px", color: "#aaa" }}>
-        <em>Categoria:</em> {produto.categoria || "Sem categoria"}
-      </p>
-      <p style={{ fontSize: "13px", color: "#aaa" }}>
-        <em>Produtor:</em> {produto.produtorEmail}
-      </p>
-
+      {/* 🔗 Tornar o card clicável */}
       <Link
-        to={`/chat/${produto.id}`}
-        style={{
-          display: "inline-block",
-          marginTop: "10px",
-          backgroundColor: "#4CAF50",
-          color: "white",
-          padding: "8px 12px",
-          borderRadius: "5px",
-          textDecoration: "none",
-        }}
+        to={`/produto/${produto.id}`}
+        style={{ textDecoration: "none", color: "inherit" }}
       >
-        Conversar com o produtor
+        {/* 🖼️ Carrossel manual */}
+        <div style={{ position: "relative", height: "180px", overflow: "hidden" }}>
+          <img
+            src={imagens[index]}
+            alt={produto.nome}
+            style={{
+              width: "100%",
+              height: "180px",
+              objectFit: "cover",
+              borderRadius: "8px",
+              transition: "opacity 0.4s ease-in-out",
+            }}
+          />
+
+          {total > 1 && (
+            <>
+              <button onClick={(e) => { e.preventDefault(); prev(); }} style={btnStyle("left")}>‹</button>
+              <button onClick={(e) => { e.preventDefault(); next(); }} style={btnStyle("right")}>›</button>
+            </>
+          )}
+        </div>
+
+        <h3 style={{ margin: "10px 0", color: "#d4ed91" }}>{produto.nome}</h3>
+        <p><strong>Preço:</strong> R$ {produto.preco.toFixed(2)}</p>
+        <p style={{ fontSize: "13px", color: "#aaa" }}>
+          <em>Categoria:</em> {produto.categoria || "Sem categoria"}
+        </p>
+        <p style={{ fontSize: "13px", color: "#aaa" }}>
+          <em>Produtor:</em> {produto.produtorEmail}
+        </p>
+
+        <p style={{ color: "#4CAF50", fontWeight: "bold" }}>Clique para ver mais detalhes</p>
       </Link>
     </div>
   );
