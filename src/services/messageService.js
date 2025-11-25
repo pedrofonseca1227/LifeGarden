@@ -1,4 +1,4 @@
-import { db } from "./firebaseConfig";
+import { db } from "../services/firebaseConfig";
 import {
   collection,
   addDoc,
@@ -7,62 +7,151 @@ import {
   onSnapshot,
   where,
   getDocs,
-  or
+  doc,
+  getDoc,
+  deleteDoc,
 } from "firebase/firestore";
 
-// Enviar nova mensagem com remetente e destinatário
+/* ============================================================
+   🔵 1 — Validar acesso ao chat
+   Formato do chatId: produtoId_emailDoComprador
+============================================================ */
+export const validarAcessoChat = async (chatId, userEmail) => {
+  try {
+    const [produtoId, compradorEmail] = chatId.split("_");
+
+    // Se o formato estiver errado → bloqueia
+    if (!produtoId || !compradorEmail) return false;
+
+    const ref = doc(db, "produtos", produtoId);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) return false;
+
+    const produto = snap.data();
+    const produtorEmail = produto.produtorEmail;
+
+    // Apenas comprador OU produtor podem acessar
+    return userEmail === compradorEmail || userEmail === produtorEmail;
+
+  } catch (err) {
+    console.error("Erro validarAcessoChat:", err);
+    return false;
+  }
+};
+
+/* ============================================================
+   🔵 2 — Enviar mensagem
+============================================================ */
 export const sendMessage = async (chatId, remetenteEmail, destinatarioEmail, texto) => {
-  const mensagensRef = collection(db, "mensagens");
-  await addDoc(mensagensRef, {
-    chatId,
-    remetenteEmail,
-    destinatarioEmail,
-    texto,
-    createdAt: new Date(),
-  });
+  try {
+    const mensagensRef = collection(db, "mensagens");
+
+    await addDoc(mensagensRef, {
+      chatId,
+      remetenteEmail,
+      destinatarioEmail,
+      texto,
+      createdAt: new Date(),
+    });
+
+  } catch (err) {
+    console.error("Erro ao enviar mensagem:", err);
+    throw err;
+  }
 };
 
-// Escutar mensagens em tempo real
+/* ============================================================
+   🔵 3 — Escutar mensagens em tempo real
+============================================================ */
 export const listenMessages = (chatId, callback) => {
-  const mensagensRef = collection(db, "mensagens");
-  const q = query(
-    mensagensRef,
-    where("chatId", "==", chatId),
-    orderBy("createdAt", "asc")
-  );
+  try {
+    const mensagensRef = collection(db, "mensagens");
 
-  return onSnapshot(q, (snapshot) => {
-    const mensagens = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    callback(mensagens);
-  });
+    const q = query(
+      mensagensRef,
+      where("chatId", "==", chatId),
+      orderBy("createdAt", "asc")
+    );
+
+    return onSnapshot(q, (snapshot) => {
+      const msgs = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }));
+      callback(msgs);
+    });
+
+  } catch (err) {
+    console.error("Erro listenMessages:", err);
+  }
 };
 
-// ✅ Buscar todas as conversas em que o usuário participou
+/* ============================================================
+   🔵 4 — Buscar conversas do usuário
+============================================================ */
 export const getUserChats = async (userEmail) => {
-  const mensagensRef = collection(db, "mensagens");
-  const q = query(
-    mensagensRef,
-    where("remetenteEmail", "==", userEmail)
-  );
+  try {
+    const mensagensRef = collection(db, "mensagens");
 
-  const snapshot = await getDocs(q);
-  const chats = new Map();
+    const q1 = query(mensagensRef, where("remetenteEmail", "==", userEmail));
+    const q2 = query(mensagensRef, where("destinatarioEmail", "==", userEmail));
 
-  snapshot.forEach((doc) => {
-    const msg = doc.data();
-    if (!chats.has(msg.chatId)) {
-      chats.set(msg.chatId, {
-        chatId: msg.chatId,
-        ultimoTexto: msg.texto,
-        ultimaMensagem: msg.createdAt?.toDate?.() || msg.createdAt,
+    const [s1, s2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+    const chats = new Map();
+
+    const processar = (snap) => {
+      snap.forEach((doc_) => {
+        const m = doc_.data();
+        const chatId = m.chatId;
+
+        const ultimaData = m.createdAt?.toDate?.() || m.createdAt;
+
+        if (!chats.has(chatId) || ultimaData > chats.get(chatId).ultimaMensagemData) {
+          chats.set(chatId, {
+            chatId,
+            ultimaMensagem: m.texto,
+            ultimoRemetente: m.remetenteEmail,
+            ultimaMensagemData: ultimaData,
+          });
+        }
       });
-    }
-  });
+    };
 
-  return Array.from(chats.values()).sort(
-    (a, b) => b.ultimaMensagem - a.ultimaMensagem
-  );
+    processar(s1);
+    processar(s2);
+
+    return [...chats.values()].sort((a, b) => b.ultimaMensagemData - a.ultimaMensagemData);
+
+  } catch (err) {
+    console.error("Erro getUserChats:", err);
+    return [];
+  }
+};
+
+/* ============================================================
+   🔴 5 — Apagar conversa
+============================================================ */
+export const deleteChat = async (chatId, userEmail) => {
+  try {
+    const permitido = await validarAcessoChat(chatId, userEmail);
+
+    if (!permitido) {
+      throw new Error("Usuário não autorizado a excluir.");
+    }
+
+    const mensagensRef = collection(db, "mensagens");
+    const q = query(mensagensRef, where("chatId", "==", chatId));
+
+    const snap = await getDocs(q);
+    const deletes = snap.docs.map((d) => deleteDoc(d.ref));
+
+    await Promise.all(deletes);
+    console.log("Conversa excluída com sucesso:", chatId);
+
+  } catch (err) {
+    console.error("Erro deleteChat:", err);
+    throw err;
+  }
 };

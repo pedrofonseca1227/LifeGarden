@@ -1,0 +1,158 @@
+/* ===========================
+   NAVBAR PRINCIPAL
+=========================== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 75px;
+
+  background: #224218;
+  color: #fff;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 28px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+
+  z-index: 1000;
+}
+
+/* ===========================
+   LOGO / TÍTULO
+=========================== */
+.navbar-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+  color: #8fdd65;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.45);
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-logo {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
+}
+
+/* ===========================
+   MENU DESKTOP
+=========================== */
+.navbar-ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+
+  margin: 0;
+  padding: 0;
+
+  flex-wrap: nowrap;
+}
+
+/* LINKS */
+.navbar-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+
+  transition: 0.2s ease;
+}
+
+.navbar-link:hover {
+  color: #8fdd65;
+  transform: translateY(-2px);
+}
+
+/* USER BADGE */
+.user-badge {
+  background: #2e7d32;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+}
+
+/* ===========================
+   BOTÃO SAIR
+=========================== */
+.navbar-button {
+  background: none;
+  border: none;
+  color: #fff;
+
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+
+  transition: 0.2s ease;
+}
+
+.navbar-button:hover {
+  color: #8fdd65;
+  transform: translateY(-2px);
+}
+
+/* ===========================
+   ÍCONE HAMBURGUER (MOBILE)
+=========================== */
+.navbar-menu-icon {
+  display: none;
+  font-size: 2rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ===========================
+   MENU MOBILE DROPDOWN
+=========================== */
+.navbar-ul-mobile {
+  background: #1b1b1b;
+  width: 100%;
+  padding: 20px 0;
+
+  list-style: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  text-align: center;
+  border-bottom: 2px solid #2e2e2e;
+}
+
+.navbar-ul-mobile .navbar-link {
+  font-size: 1.1rem;
+}
+
+/* ===========================
+   RESPONSIVIDADE
+=========================== */
+
+@media (max-width: 900px) {
+  .navbar-ul {
+    display: none; /* Oculta menu desktop */
+  }
+
+  .navbar-menu-icon {
+    display: block; /* Mostra ícone */
+  }
+
+  .user-badge,
+  .navbar-button {
+    display: none; /* Usuário só aparece no menu mobile */
+  }
+}

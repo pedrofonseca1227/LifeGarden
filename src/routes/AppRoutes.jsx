@@ -1,42 +1,40 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from '../components/Navbar.jsx';
-import Footer from '../components/Footer.jsx';
-import Home from '../pages/Home.jsx';
-import Login from '../pages/Login.jsx';
-import Cadastro from '../pages/Cadastro.jsx';
-import Sobre from '../pages/Sobre.jsx';
-import NovoProduto from '../pages/NovoProduto.jsx';
-import MeusProdutos from '../pages/MeusProdutos';
-import EditarProduto from '../pages/EditarProduto';
-import Chat from '../pages/Chat';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import MainLayout from "../layouts/MainLayout";
+
+import Home from "../pages/Home";
+import Login from "../pages/Login";
+import Cadastro from "../pages/Cadastro";
+import Sobre from "../pages/Sobre";
+import NovoProduto from "../pages/NovoProduto";
+import MeusProdutos from "../pages/MeusProdutos";
+import EditarProduto from "../pages/EditarProduto";
+import Chat from "../pages/Chat";
 import Conversas from "../pages/Conversas";
-import Perfil from '../pages/Perfil.jsx';
-import DetalhesProduto from '../pages/DetalhesProduto.jsx';
+import Perfil from "../pages/Perfil";
+import DetalhesProduto from "../pages/DetalhesProduto";
 
-
-const AppRoutes = () => {
+export default function AppRoutes() {
   return (
-    <Router>
-      <Navbar />
-      <main style={{ minHeight: '80vh', padding: '20px' }}>
-        <Routes>
+    <BrowserRouter>
+      <Routes>
+
+        <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/novo-produto" element={<NovoProduto />} />
           <Route path="/meus-produtos" element={<MeusProdutos />} />
           <Route path="/editar-produto/:id" element={<EditarProduto />} />
-          <Route path="/chat/:chatId" element={<Chat />} />
-          <Route path="/conversas" element={<Conversas />} />
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/produto/:id" element={<DetalhesProduto />} />
-        </Routes>
-      </main>
-      <Footer />
-    </Router>
-  );
-};
+          <Route path="/conversas" element={<Conversas />} />
+          <Route path="/chat/:chatId" element={<Chat />} />
+        </Route>
 
-export default AppRoutes;
+        {/* Rotas SEM layout fixo */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Cadastro />} />
+
+      </Routes>
+    </BrowserRouter>
+  );
+}

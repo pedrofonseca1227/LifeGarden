@@ -1,214 +1,132 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { sendMessage, listenMessages } from "../services/messageService";
+import { sendMessage, listenMessages, validarAcessoChat } from "../services/messageService";
 import { db } from "../services/firebaseConfig";
-import AvaliacaoForm from "../components/AvaliacaoForm";
 import { doc, getDoc } from "firebase/firestore";
+import AvaliacaoForm from "../components/AvaliacaoForm";
+
+import "../styles/chat.css";
 
 const Chat = () => {
   const { chatId } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [mensagens, setMensagens] = useState([]);
   const [texto, setTexto] = useState("");
   const [produto, setProduto] = useState(null);
   const [destinatarioEmail, setDestinatarioEmail] = useState("");
 
-  // ✅ Buscar informações do produto
+  /* ============================================================
+     1) CARREGAR PRODUTO PRIMEIRO
+  ============================================================ */
   useEffect(() => {
     const fetchProduto = async () => {
-      try {
-        const produtoRef = doc(db, "produtos", chatId);
-        const produtoSnap = await getDoc(produtoRef);
-        if (produtoSnap.exists()) {
-          const produtoData = produtoSnap.data();
-          setProduto(produtoData);
+      const [produtoId] = chatId.split("_");
+      const snap = await getDoc(doc(db, "produtos", produtoId));
 
-          // 🔄 Define destinatário como o produtor, se o usuário for o comprador
-          if (produtoData.produtorEmail && produtoData.produtorEmail !== user.email) {
-            setDestinatarioEmail(produtoData.produtorEmail);
-          }
-        }
-      } catch (error) {
-        console.error("Erro ao buscar produto:", error);
+      if (snap.exists()) {
+        const data = snap.data();
+        setProduto(data);
+
+        // Agora sim podemos validar acesso!
+        validarAcesso(data);
+      } else {
+        alert("Produto não encontrado.");
+        navigate("/");
       }
     };
 
-    fetchProduto();
-  }, [chatId, user.email]);
-
-  // ✅ Escutar mensagens em tempo real
-  useEffect(() => {
-    const unsubscribe = listenMessages(chatId, (msgs) => setMensagens(msgs));
-    return () => unsubscribe();
+    if (chatId) fetchProduto();
   }, [chatId]);
 
-  // ✅ Detecta automaticamente o outro participante (caso o produtor responda)
-  useEffect(() => {
-    if (!destinatarioEmail && mensagens.length > 0) {
-      const outraPessoa = mensagens.find((msg) => msg.remetenteEmail !== user.email);
-      if (outraPessoa) {
-        setDestinatarioEmail(outraPessoa.remetenteEmail);
-      }
-    }
-  }, [mensagens, user.email, destinatarioEmail]);
+  /* ============================================================
+     2) VALIDAR ACESSO DEPOIS QUE O PRODUTO É CARREGADO
+  ============================================================ */
+  const validarAcesso = async (produtoData) => {
+    const permitido =
+      user.email === produtoData.produtorEmail ||
+      chatId.endsWith(`_${user.email}`);
 
-  // ✅ Enviar mensagem
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!texto.trim()) return;
-
-    const destinatario =
-      destinatarioEmail || produto?.produtorEmail || "";
-
-    if (!destinatario) {
-      alert("Erro: destinatário não encontrado.");
-      return;
-    }
-
-    try {
-      await sendMessage(chatId, user.email, destinatario, texto.trim());
-      setTexto("");
-    } catch (error) {
-      console.error("Erro ao enviar mensagem:", error);
+    if (!permitido) {
+      alert("❌ Você não tem permissão para acessar esta conversa.");
+      navigate("/");
     }
   };
 
+  /* ============================================================
+     3) ESCUTAR MENSAGENS
+  ============================================================ */
+  useEffect(() => {
+    const unsubscribe = listenMessages(chatId, setMensagens);
+    return () => unsubscribe();
+  }, [chatId]);
+
+  /* ============================================================
+     4) DEFINIR DESTINATÁRIO
+  ============================================================ */
+  useEffect(() => {
+    if (!produto) return;
+
+    const compradorEmail = chatId.split("_")[1];
+
+    if (user.email === produto.produtorEmail) {
+      setDestinatarioEmail(compradorEmail);
+    } else {
+      setDestinatarioEmail(produto.produtorEmail);
+    }
+  }, [produto, user]);
+
+  /* ============================================================
+     5) ENVIAR MENSAGEM
+  ============================================================ */
+  const handleSend = async (e) => {
+    e.preventDefault();
+
+    if (!texto.trim()) return;
+
+    await sendMessage(chatId, user.email, destinatarioEmail, texto.trim());
+    setTexto("");
+  };
+
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "0 auto",
-        padding: "20px",
-        backgroundColor: "#1f1f1f",
-        borderRadius: "10px",
-        color: "#fff",
-      }}
-    >
-      {/* ✅ Cabeçalho do produto */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginBottom: "15px",
-          borderBottom: "1px solid #444",
-          paddingBottom: "10px",
-        }}
-      >
-        {produto?.imagem ? (
-          <img
-            src={produto.imagem}
-            alt={produto.nome}
-            style={{
-              width: "60px",
-              height: "60px",
-              objectFit: "cover",
-              borderRadius: "8px",
-              marginRight: "10px",
-            }}
-          />
-        ) : (
+    <div className="chat-container">
+      <div className="chat-header">
+        <h3>{produto?.nome || "Produto"}</h3>
+      </div>
+
+      <div className="chat-mensagens">
+        {mensagens.map((msg) => (
           <div
-            style={{
-              width: "60px",
-              height: "60px",
-              backgroundColor: "#333",
-              borderRadius: "8px",
-              marginRight: "10px",
-            }}
-          />
-        )}
-
-        <div>
-          <h3 style={{ margin: 0, color: "#d4ed91" }}>
-            {produto?.nome || "Produto"}
-          </h3>
-        </div>
+            key={msg.id}
+            className={`chat-msg ${
+              msg.remetenteEmail === user.email ? "msg-enviada" : "msg-recebida"
+            }`}
+          >
+            <div className="chat-bolha">{msg.texto}</div>
+            <p className="chat-email">{msg.remetenteEmail}</p>
+          </div>
+        ))}
       </div>
 
-      {/* ✅ Mensagens */}
-      <div
-        style={{
-          backgroundColor: "#2c2c2c",
-          borderRadius: "8px",
-          padding: "10px",
-          height: "400px",
-          overflowY: "auto",
-          marginBottom: "15px",
-        }}
-      >
-        {mensagens.length === 0 ? (
-          <p style={{ color: "#aaa" }}>Nenhuma mensagem ainda.</p>
-        ) : (
-          mensagens.map((msg) => (
-            <div
-              key={msg.id}
-              style={{
-                marginBottom: "10px",
-                textAlign:
-                  msg.remetenteEmail === user.email ? "right" : "left",
-              }}
-            >
-              <div
-                style={{
-                  display: "inline-block",
-                  backgroundColor:
-                    msg.remetenteEmail === user.email ? "#4CAF50" : "#333",
-                  color: "white",
-                  padding: "8px 12px",
-                  borderRadius: "15px",
-                  maxWidth: "75%",
-                  wordWrap: "break-word",
-                }}
-              >
-                <p style={{ margin: 0 }}>{msg.texto}</p>
-              </div>
-              <p style={{ fontSize: "12px", color: "#aaa", margin: "3px 0" }}>
-                {msg.remetenteEmail}
-              </p>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* ✅ Input de mensagem */}
-      <form
-        onSubmit={handleSend}
-        style={{ display: "flex", gap: "10px", alignItems: "center" }}
-      >
+      <form className="chat-input-area" onSubmit={handleSend}>
         <input
           type="text"
+          className="chat-input"
+          placeholder="Digite sua mensagem..."
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
-          placeholder="Digite sua mensagem..."
-          style={{
-            flex: 1,
-            padding: "10px",
-            borderRadius: "8px",
-            border: "1px solid #555",
-            backgroundColor: "#2a2a2a",
-            color: "white",
-          }}
         />
-        <button
-          type="submit"
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: "8px",
-            backgroundColor: "#4CAF50",
-            color: "white",
-            cursor: "pointer",
-          }}
-        >
-          Enviar
-        </button>
+        <button className="chat-btn">Enviar</button>
       </form>
-      {/* 🧠 Formulário de avaliação */}
-      {produto?.produtorEmail && (
-        <AvaliacaoForm produtorEmail={produto.produtorEmail} />
-      )}
+
+      <div className="chat-avaliacao-box">
+        <h4>⭐ Avalie o produtor ao encerrar a conversa</h4>
+        {produto?.produtorEmail && (
+          <AvaliacaoForm produtorEmail={produto.produtorEmail} />
+        )}
+      </div>
     </div>
   );
 };

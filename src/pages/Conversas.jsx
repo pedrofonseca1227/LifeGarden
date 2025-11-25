@@ -1,32 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { getUserChats } from "../services/messageService";
+import { getUserChats, deleteChat } from "../services/messageService";
 import { useAuth } from "../hooks/useAuth";
 import { Link } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../services/firebaseConfig";
 
-// 🔹 Imagem padrão local (adicione o arquivo em src/assets/sem-imagem.png)
 import noImage from "../assets/sem-imagem.png";
+import "../styles/conversas.css";
 
 const Conversas = () => {
   const { user } = useAuth();
   const [conversas, setConversas] = useState([]);
 
   useEffect(() => {
-    const fetchChats = async () => {
+    const fetch = async () => {
       if (!user) return;
 
-      const chats = (await getUserChats(user.email)) || [];
+      const chats = await getUserChats(user.email);
 
-      // 🔍 Busca o produto relacionado a cada chat
       const chatsComProduto = await Promise.all(
-        chats.map(async (chat) => {
-          const produtoRef = doc(db, "produtos", chat.chatId);
-          const produtoSnap = await getDoc(produtoRef);
+        chats.map(async (c) => {
+          const produtoId = c.chatId.split("_")[0];
+          const snap = await getDoc(doc(db, "produtos", produtoId));
 
           return {
-            ...chat,
-            produto: produtoSnap.exists() ? produtoSnap.data() : null,
+            ...c,
+            produto: snap.exists() ? snap.data() : null,
           };
         })
       );
@@ -34,99 +33,73 @@ const Conversas = () => {
       setConversas(chatsComProduto);
     };
 
-    fetchChats();
+    fetch();
   }, [user]);
 
-  if (!user)
-    return (
-      <p style={{ color: "#fff" }}>Faça login para ver suas conversas.</p>
-    );
+  const remover = async (chatId) => {
+    if (!window.confirm("Deseja realmente excluir esta conversa?")) return;
+
+    await deleteChat(chatId, user.email);
+    setConversas((prev) => prev.filter((c) => c.chatId !== chatId));
+  };
+
+  if (!user) return <p className="conv-alert">Faça login para ver suas conversas.</p>;
 
   return (
-    <div style={{ padding: "20px", color: "#fff" }}>
-      <h2>💬 Minhas Conversas</h2>
+    <div className="conv-container">
+      <h2 className="conv-title">💬 Minhas Conversas</h2>
 
       {conversas.length === 0 ? (
-        <p>Nenhuma conversa encontrada.</p>
+        <p className="conv-empty">Nenhuma conversa encontrada.</p>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {(conversas || []).map((c, i) => (
-            <Link
-              key={`${c.chatId || "semId"}-${i}`}
-              to={`/chat/${c.chatId || ""}`}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                backgroundColor: "#1f1f1f",
-                borderRadius: "10px",
-                padding: "10px",
-                textDecoration: "none",
-                color: "white",
-                transition: "background 0.2s ease",
-              }}
-            >
-              {/* 🖼️ Miniatura do produto */}
-              <img
-                src={
-                  c.produto?.imagens?.[0] ||
-                  noImage // ✅ imagem local padrão
-                }
-                alt={c.produto?.nome || "Produto"}
-                style={{
-                  width: "70px",
-                  height: "70px",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                }}
-              />
+        <div className="conv-list">
+          {conversas.map((c, i) => {
+            const comprador = c.chatId.split("_")[1];
+            const outro =
+              user.email === comprador ? c.produto?.produtorEmail : comprador;
 
-              {/* 💬 Informações da conversa */}
-              <div style={{ flex: 1 }}>
-                <h4
-                  style={{
-                    margin: 0,
-                    color: "#d4ed91",
-                    fontSize: "16px",
-                    fontWeight: "500",
-                  }}
-                >
-                  {c.produto?.nome || "Produto removido"}
-                </h4>
+            const avatar = outro?.split("@")[0].slice(0, 2).toUpperCase() || "US";
 
-                <p
-                  style={{
-                    margin: "4px 0",
-                    fontSize: "14px",
-                    color: "#aaa",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    maxWidth: "250px",
-                  }}
-                >
-                  {c.ultimoRemetente === user.email
-                    ? `Você: ${String(c.ultimaMensagem || "")}`
-                    : String(c.ultimaMensagem || "")}
-                </p>
+            const data = new Date(c.ultimaMensagemData).toLocaleString();
 
-                {/* 🕒 Data da última mensagem */}
-                {c.createdAt && (
-                  <p
-                    style={{
-                      fontSize: "12px",
-                      color: "#777",
-                      margin: 0,
-                    }}
-                  >
-                    {c.createdAt.toDate
-                      ? c.createdAt.toDate().toLocaleString()
-                      : new Date(c.createdAt).toLocaleString()}
+            return (
+              <Link key={i} to={`/chat/${c.chatId}`} className="conv-item">
+                <div className="conv-thumb">
+                  <img src={c.produto?.imagens?.[0] || noImage} className="conv-img" />
+
+                  <div className="conv-avatar">
+                    <span className="conv-avatar-label">{avatar}</span>
+                  </div>
+                </div>
+
+                <div className="conv-info">
+                  <h4 className="conv-produto-nome">
+                    {c.produto?.nome || "Produto Removido"}
+                  </h4>
+
+                  <p className="conv-ultima-msg">
+                    {c.ultimoRemetente === user.email
+                      ? `Você: ${c.ultimaMensagem}`
+                      : c.ultimaMensagem}
                   </p>
-                )}
-              </div>
-            </Link>
-          ))}
+                </div>
+
+                <div className="conv-meta">
+                  <p className="conv-data">{data}</p>
+                </div>
+
+                <button
+                  className="conv-delete-btn"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    remover(c.chatId);
+                  }}
+                >
+                  🗑
+                </button>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

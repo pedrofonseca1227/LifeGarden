@@ -1,28 +1,59 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import "../styles/cadastro.css";
 
 const Cadastro = () => {
   const { register } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      await register(email, password);
-      alert('Cadastro realizado com sucesso!');
+      await register(nome, email, password);
+      alert("Conta criada com sucesso!");
     } catch (error) {
-      alert('Erro ao cadastrar: ' + error.message);
+      alert("Erro ao cadastrar: " + error.message);
     }
   };
 
   return (
-    <div>
-      <h2>Criar Conta</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Senha" onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Cadastrar</button>
+    <div className="cadastro-page">
+      <h2 className="cadastro-title">Criar Conta</h2>
+
+      <form className="cadastro-form" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Seu nome completo"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          required
+          className="cadastro-input"
+        />
+
+        <input
+          type="email"
+          placeholder="Seu e-mail"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="cadastro-input"
+        />
+
+        <input
+          type="password"
+          placeholder="Senha"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="cadastro-input"
+        />
+
+        <button className="cadastro-button" type="submit">
+          Cadastrar
+        </button>
       </form>
     </div>
   );

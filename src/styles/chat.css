@@ -1,0 +1,122 @@
+/* Container principal */
+.chat-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #1f1f1f;
+  border-radius: 12px;
+  color: white;
+}
+
+/* Cabeçalho */
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #333;
+}
+
+.chat-produto-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.no-img {
+  background: #333;
+}
+
+.chat-produto-nome {
+  margin: 0;
+  color: #d4ed91;
+}
+
+/* Área de mensagens */
+.chat-mensagens {
+  background: #262626;
+  padding: 12px;
+  border-radius: 10px;
+  height: 420px;
+  overflow-y: auto;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.chat-vazio {
+  color: #bbb;
+  text-align: center;
+}
+
+.chat-msg {
+  margin-bottom: 12px;
+}
+
+.msg-enviada {
+  text-align: right;
+}
+
+.msg-recebida {
+  text-align: left;
+}
+
+.chat-bolha {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 14px;
+  max-width: 75%;
+  word-break: break-word;
+}
+
+.msg-enviada .chat-bolha {
+  background: #4caf50;
+}
+
+.msg-recebida .chat-bolha {
+  background: #333;
+}
+
+.chat-email {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 3px;
+}
+
+/* Input */
+.chat-input-area {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px;
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: white;
+}
+
+.chat-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Avaliação */
+.chat-avaliacao-box {
+  margin-top: 25px;
+  padding: 15px;
+  border-radius: 10px;
+  background: #222;
+}
+
+.chat-aviso {
+  color: #d4ed91;
+  margin-bottom: 10px;
+  text-align: center;
+}

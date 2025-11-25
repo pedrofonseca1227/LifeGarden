@@ -1,0 +1,237 @@
+/* ===========================
+   CONTAINER GERAL
+=========================== */
+.perfil-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  color: #fff;
+}
+
+/* ===========================
+   TÍTULO PRINCIPAL
+=========================== */
+.perfil-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #c8ff9b;
+}
+
+/* ===========================
+   FORMULÁRIO
+=========================== */
+.perfil-form {
+  background: #1f1f1f;
+  padding: 28px;
+  border-radius: 14px;
+  border: 1px solid #2c2c2c;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ===========================
+   SEÇÕES
+=========================== */
+.perfil-section-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #8fdd65;
+  margin-bottom: -6px;
+}
+
+/* ===========================
+   BLOCO DE E-MAIL
+=========================== */
+.perfil-email-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+}
+
+.perfil-email-label {
+  font-size: 0.95rem;
+  color: #cccccc;
+  margin: 0 0 4px;
+}
+
+.perfil-email-value {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.perfil-email-button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #8fdd65;
+  color: #1b1b1b;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.perfil-email-button:hover {
+  filter: brightness(0.9);
+}
+
+/* ===========================
+   GRID DE INPUTS (2 colunas)
+=========================== */
+.perfil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+@media (max-width: 700px) {
+  .perfil-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .perfil-email-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .perfil-email-button {
+    align-self: flex-end;
+  }
+}
+
+/* ===========================
+   INPUTS
+=========================== */
+.perfil-input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #555;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.2s;
+}
+
+.perfil-input:focus {
+  border-color: #8fdd65;
+  box-shadow: 0 0 8px rgba(143, 221, 101, 0.35);
+}
+
+/* ===========================
+   BOTÃO SALVAR
+=========================== */
+.perfil-button {
+  margin-top: 10px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #8fdd65;
+  color: #1b1b1b;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.perfil-button:hover {
+  filter: brightness(0.9);
+}
+
+.perfil-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* LOGIN NECESSÁRIO */
+.perfil-alert {
+  text-align: center;
+  color: #fff;
+  margin-top: 60px;
+  font-size: 1.1rem;
+}
+
+/* ===========================
+   MODAL DE ALTERAÇÃO DE E-MAIL
+=========================== */
+.perfil-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.perfil-modal {
+  background: #1f1f1f;
+  padding: 22px 24px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+.perfil-modal h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #c8ff9b;
+}
+
+.perfil-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.perfil-modal-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.perfil-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.perfil-modal-cancelar,
+.perfil-modal-confirmar {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.perfil-modal-cancelar {
+  background: #333;
+  color: #eee;
+}
+
+.perfil-modal-confirmar {
+  background: #8fdd65;
+  color: #1b1b1b;
+}
+
+.perfil-modal-cancelar:disabled,
+.perfil-modal-confirmar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

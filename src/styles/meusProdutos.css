@@ -1,0 +1,93 @@
+/* Página geral */
+.meusprodutos-page {
+  padding: 20px;
+  color: #fff;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.meusprodutos-title {
+  text-align: left;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #c8ff9b;
+}
+
+/* Quando não tiver produtos */
+.meusprodutos-empty {
+  text-align: center;
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+/* GRID */
+.meusprodutos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+/* CARD */
+.meusprodutos-card {
+  background: #1f1f1f;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.35);
+  transition: transform 0.2s ease;
+}
+
+.meusprodutos-card:hover {
+  transform: translateY(-3px);
+}
+
+/* IMAGEM */
+.meusprodutos-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* TÍTULO */
+.meusprodutos-name {
+  color: #d4ed91;
+  margin: 10px 0 4px;
+}
+
+/* DESCRIÇÃO */
+.meusprodutos-desc {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* BOTÕES */
+.meusprodutos-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.meusprodutos-btn {
+  flex: 1;
+  padding: 8px;
+  text-align: center;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  color: #fff;
+  transition: 0.2s;
+}
+
+.meusprodutos-btn.editar {
+  background: #4caf50;
+  margin-right: 8px;
+}
+
+.meusprodutos-btn.excluir {
+  background: #d03535;
+}
+
+.meusprodutos-btn:hover {
+  filter: brightness(0.9);
+}

@@ -1,75 +1,90 @@
 import React, { useEffect, useState } from "react";
 import { getProdutos } from "../services/productService";
+import { getUserProfile } from "../services/userService";
 import { Link } from "react-router-dom";
+import "../styles/home.css";
 
 const Home = () => {
   const [produtos, setProdutos] = useState([]);
   const [busca, setBusca] = useState("");
-  const [categoria, setCategoria] = useState("todos");
   const [precoMin, setPrecoMin] = useState("");
   const [precoMax, setPrecoMax] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await getProdutos();
-      setProdutos(data);
+
+      // Buscar nome do produtor
+      const produtosComNome = await Promise.all(
+        data.map(async (p) => {
+          if (!p.produtorEmail) return p;
+
+          const perfil = await getUserProfile(p.produtorEmail);
+          return {
+            ...p,
+            produtorNome: perfil?.nome || p.produtorEmail, // fallback
+          };
+        })
+      );
+
+      setProdutos(produtosComNome);
     };
+
     fetchData();
   }, []);
 
-  // 🧮 Filtro dinâmico local
   const produtosFiltrados = produtos.filter((p) => {
     const nomeMatch = p.nome?.toLowerCase().includes(busca.toLowerCase());
     const descMatch = p.descricao?.toLowerCase().includes(busca.toLowerCase());
-    const categoriaMatch = categoria === "todos" || p.categoria === categoria;
     const precoMinMatch = precoMin ? p.preco >= parseFloat(precoMin) : true;
     const precoMaxMatch = precoMax ? p.preco <= parseFloat(precoMax) : true;
 
-    return (nomeMatch || descMatch) && categoriaMatch && precoMinMatch && precoMaxMatch;
+    return (nomeMatch || descMatch) && precoMinMatch && precoMaxMatch;
   });
 
   return (
-    <div style={{ padding: "20px", color: "#fff" }}>
-      <h2>🌿 Produtos disponíveis</h2>
+    <div className="home-container">
 
-      {/* 🔍 Filtros */}
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "10px",
-          marginBottom: "20px",
-          backgroundColor: "#1f1f1f",
-          padding: "15px",
-          borderRadius: "10px",
-        }}
-      >
+      {/* BANNER */}
+      <section className="hero-banner"></section>
+
+      {/* COMO FUNCIONA */}
+      <section id="como-funciona" className="home-steps">
+        <div className="home-step">
+          <span className="home-step-icon">🔍</span>
+          <h3>1. Encontre</h3>
+          <p>Veja os produtos disponíveis perto de você.</p>
+        </div>
+        <div className="home-step">
+          <span className="home-step-icon">💬</span>
+          <h3>2. Converse</h3>
+          <p>Fale diretamente com o produtor.</p>
+        </div>
+        <div className="home-step">
+          <span className="home-step-icon">🤝</span>
+          <h3>3. Combine</h3>
+          <p>Vocês definem valores e entrega.</p>
+        </div>
+      </section>
+
+      {/* FILTROS */}
+      <h3 className="home-filters-title">Filtre os produtos</h3>
+      <div className="home-filters">
+
         <input
           type="text"
           placeholder="Buscar por nome ou descrição..."
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          style={inputStyle}
+          className="filter-input"
         />
-
-        <select
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-          style={inputStyle}
-        >
-          <option value="todos">Todas as categorias</option>
-          <option value="Insumos">Insumos</option>
-          <option value="Ferramentas">Ferramentas</option>
-          <option value="Mudas e Sementes">Mudas e Sementes</option>
-          <option value="Alimentos">Alimentos</option>
-        </select>
 
         <input
           type="number"
           placeholder="Preço mínimo"
           value={precoMin}
           onChange={(e) => setPrecoMin(e.target.value)}
-          style={{ ...inputStyle, width: "120px" }}
+          className="filter-input"
         />
 
         <input
@@ -77,39 +92,25 @@ const Home = () => {
           placeholder="Preço máximo"
           value={precoMax}
           onChange={(e) => setPrecoMax(e.target.value)}
-          style={{ ...inputStyle, width: "120px" }}
+          className="filter-input"
         />
 
         <button
           onClick={() => {
             setBusca("");
-            setCategoria("todos");
             setPrecoMin("");
             setPrecoMax("");
           }}
-          style={{
-            padding: "10px",
-            borderRadius: "8px",
-            backgroundColor: "#4CAF50",
-            border: "none",
-            color: "#fff",
-            cursor: "pointer",
-          }}
+          className="filter-button"
         >
           Limpar filtros
         </button>
       </div>
 
-      {/* 🧱 Lista de produtos */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: "20px",
-        }}
-      >
+      {/* GRID */}
+      <div id="produtos" className="home-grid">
         {produtosFiltrados.length === 0 ? (
-          <p>Nenhum produto encontrado com os filtros aplicados.</p>
+          <p>Nenhum produto encontrado.</p>
         ) : (
           produtosFiltrados.map((p) => <ProdutoCard key={p.id} produto={p} />)
         )}
@@ -123,88 +124,53 @@ const ProdutoCard = ({ produto }) => {
   const imagens = produto.imagens?.length ? produto.imagens : [produto.imagem];
   const total = imagens.length;
 
-  const next = () => setIndex((prev) => (prev + 1) % total);
-  const prev = () => setIndex((prev) => (prev - 1 + total) % total);
-
   return (
-    <div
-      style={{
-        backgroundColor: "#1f1f1f",
-        borderRadius: "10px",
-        padding: "15px",
-        color: "#fff",
-        boxShadow: "0 0 10px rgba(0, 0, 0, 0.3)",
-        overflow: "hidden",
-      }}
+    <Link
+      to={`/produto/${produto.id}`}
+      style={{ textDecoration: "none", color: "inherit" }}
     >
-      {/* 🔗 Tornar o card clicável */}
-      <Link
-        to={`/produto/${produto.id}`}
-        style={{ textDecoration: "none", color: "inherit" }}
-      >
-        {/* 🖼️ Carrossel manual */}
-        <div style={{ position: "relative", height: "180px", overflow: "hidden" }}>
-          <img
-            src={imagens[index]}
-            alt={produto.nome}
-            style={{
-              width: "100%",
-              height: "180px",
-              objectFit: "cover",
-              borderRadius: "8px",
-              transition: "opacity 0.4s ease-in-out",
-            }}
-          />
+      <div className="produto-card">
+
+        <div className="carousel-container">
+          <img src={imagens[index]} alt={produto.nome} className="carousel-img" />
 
           {total > 1 && (
             <>
-              <button onClick={(e) => { e.preventDefault(); prev(); }} style={btnStyle("left")}>‹</button>
-              <button onClick={(e) => { e.preventDefault(); next(); }} style={btnStyle("right")}>›</button>
+              <button
+                className="carousel-btn left"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIndex((prev) => (prev - 1 + total) % total);
+                }}
+              >
+                ‹
+              </button>
+
+              <button
+                className="carousel-btn right"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIndex((prev) => (prev + 1) % total);
+                }}
+              >
+                ›
+              </button>
             </>
           )}
         </div>
 
-        <h3 style={{ margin: "10px 0", color: "#d4ed91" }}>{produto.nome}</h3>
+        <h3 className="produto-titulo">{produto.nome}</h3>
         <p><strong>Preço:</strong> R$ {produto.preco.toFixed(2)}</p>
-        <p style={{ fontSize: "13px", color: "#aaa" }}>
-          <em>Categoria:</em> {produto.categoria || "Sem categoria"}
-        </p>
-        <p style={{ fontSize: "13px", color: "#aaa" }}>
-          <em>Produtor:</em> {produto.produtorEmail}
+
+        {/* 👇 AGORA MOSTRA O NOME DO PRODUTOR */}
+        <p className="produto-info">
+          <em>Produtor: </em> {produto.produtorNome || "Não informado"}
         </p>
 
-        <p style={{ color: "#4CAF50", fontWeight: "bold" }}>Clique para ver mais detalhes</p>
-      </Link>
-    </div>
+        <p className="produto-cta">Clique para ver mais detalhes</p>
+      </div>
+    </Link>
   );
 };
-
-const inputStyle = {
-  padding: "10px",
-  borderRadius: "8px",
-  border: "1px solid #555",
-  backgroundColor: "#2a2a2a",
-  color: "#fff",
-  flex: "1",
-  minWidth: "150px",
-};
-
-const btnStyle = (side) => ({
-  position: "absolute",
-  top: "50%",
-  [side]: "10px",
-  transform: "translateY(-50%)",
-  backgroundColor: "rgba(0,0,0,0.5)",
-  color: "white",
-  border: "none",
-  borderRadius: "50%",
-  width: "25px",
-  height: "25px",
-  cursor: "pointer",
-  fontSize: "18px",
-  lineHeight: "22px",
-  textAlign: "center",
-  transition: "background-color 0.3s",
-});
 
 export default Home;

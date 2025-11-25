@@ -17,3 +17,10 @@ export const getAvaliacoesByProdutor = async (email) => {
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
+
+// Calcular média
+export const calcularMediaAvaliacoes = (avaliacoes) => {
+  if (!avaliacoes || avaliacoes.length === 0) return 0;
+  const soma = avaliacoes.reduce((acc, a) => acc + Number(a.nota || 0), 0);
+  return soma / avaliacoes.length;
+};
