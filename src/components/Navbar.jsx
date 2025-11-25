@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import "../styles/navbar.css";
 import Logo from "../assets/Logo.png";
@@ -7,6 +7,7 @@ import Logo from "../assets/Logo.png";
 const Navbar = () => {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -48,7 +49,15 @@ const Navbar = () => {
           {user && (
             <>
               <span className="user-badge">👤 {user.email}</span>
-              <button className="navbar-button" onClick={logout}>Sair</button>
+              <button
+                className="navbar-button"
+                onClick={() => {
+                  logout();
+                  navigate("/");
+                }}
+              >
+                Sair
+              </button>
             </>
           )}
 
