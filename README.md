@@ -59,17 +59,52 @@ O projeto foi desenvolvido utilizando **React + Firebase**, com foco em performa
 - Layout limpo com foco em usabilidade
 
 ---
+🛠 Como Rodar o Projeto
+1. Clonar o repositório
+git clone https://github.com/pedrofonseca1227/LifeGarden.git
+cd LifeGarden
 
-## 🧱 Arquitetura das Coleções no Firestore
+2. Instalar dependências
+npm install
 
-### **Coleção: produtos**
-```json
-{
-  "nome": "Milho Safra 2024",
-  "descricao": "Milho selecionado e seco",
-  "preco": 120,
-  "categoria": "Grãos",
-  "produtorEmail": "exemplo@fazenda.com",
-  "imagens": ["img1.jpg", "img2.jpg"],
-  "createdAt": "timestamp"
-}
+3. Criar arquivo .env.local
+
+Configure as credenciais do Firebase:
+
+VITE_FIREBASE_API_KEY=xxx
+VITE_FIREBASE_AUTH_DOMAIN=xxx
+VITE_FIREBASE_PROJECT_ID=xxx
+VITE_FIREBASE_STORAGE_BUCKET=xxx
+VITE_FIREBASE_MESSAGING_SENDER_ID=xxx
+VITE_FIREBASE_APP_ID=xxx
+
+4. Rodar em modo desenvolvimento
+npm run dev
+
+📂 Estrutura Simplificada do Projeto
+src/
+ ├── components/
+ ├── pages/
+ ├── services/
+ │    ├── messageService.js
+ │    ├── avaliacaoService.js
+ │    ├── productService.js
+ │    └── userService.js
+ ├── styles/
+ └── AppRoutes.jsx
+
+🎯 Objetivo do Projeto
+
+O Life Garden foi criado para:
+
+Facilitar a venda de produtos rurais
+
+Aproximar produtores e compradores
+
+Simplificar negociações
+
+Fortalecer pequenos produtores através da tecnologia
+
+📝 Licença
+
+Este projeto é de uso acadêmico e demonstrativo. Todos os direitos reservados.
