@@ -1,16 +1,75 @@
-# React + Vite
+# 🌿 Life Garden — Marketplace Rural Inteligente
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+O **Life Garden** é um marketplace moderno que conecta **produtores rurais** a **compradores e revendedores**, oferecendo uma plataforma simples, eficiente e segura para anunciar, negociar e avaliar produtos agropecuários.
 
-Currently, two official plugins are available:
+O projeto foi desenvolvido utilizando **React + Firebase**, com foco em performance, escalabilidade e experiência do usuário.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 Tecnologias Utilizadas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### **Front-end**
+- ⚛️ React.js (Vite)
+- 🎨 CSS moderno e responsivo
+- 📦 Context API (autenticação global)
+- 🔄 React Router DOM (rotas)
 
-## Expanding the ESLint configuration
+### **Back-end / Serviços**
+- 🔥 Firebase Authentication
+- 🔥 Firebase Firestore
+- 🔥 Firebase Storage
+- Real-time updates através de snapshots
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 📌 Funcionalidades Principais
+
+### 👤 **Autenticação**
+- Login e cadastro de usuários
+- Salvamento de perfil completo no Firestore
+- Atualização de informações pessoais
+- Troca segura de e-mail com reautenticação
+
+### 🛒 **Produtos**
+- Cadastro de novos produtos (com múltiplas imagens)
+- Edição e remoção
+- Listagem global com filtros:
+  - Nome / Descrição  
+  - Preço mínimo / máximo
+- Visualização detalhada com galeria de imagens
+- Exibição do produtor + média de avaliações ⭐
+
+### 💬 **Chat em Tempo Real**
+- Chats individuais baseados no produto:  
+  **`produtoId_emailDoComprador`**
+- Mensagens só podem ser lidas por comprador e produtor  
+  (validação de segurança implementada)
+- Atualização instantânea via Firestore
+- Exclusão de conversa disponível para as duas partes
+- Listagem de conversas recentes com preview da última mensagem
+
+### ⭐ **Avaliações**
+- Cada produtor pode ser avaliado por compradores
+- Sistema de notas (1–5 estrelas)
+- Comentários opcionais
+- Média de avaliações exibida na página do produto
+
+### 📱 **Responsividade**
+- Interface adaptada para desktop, tablet e mobile
+- Layout limpo com foco em usabilidade
+
+---
+
+## 🧱 Arquitetura das Coleções no Firestore
+
+### **Coleção: produtos**
+```json
+{
+  "nome": "Milho Safra 2024",
+  "descricao": "Milho selecionado e seco",
+  "preco": 120,
+  "categoria": "Grãos",
+  "produtorEmail": "exemplo@fazenda.com",
+  "imagens": ["img1.jpg", "img2.jpg"],
+  "createdAt": "timestamp"
+}
