@@ -139,12 +139,21 @@ const DetalhesProduto = () => {
 
           <p><strong>Email:</strong> {produto.produtorEmail}</p>
 
-          <Link
-            to={`/chat/${id}_${user.email}`}
-            className="detalhes-btn-chat"
-          >
-            💬 Conversar com o produtor
-          </Link>
+          {user ? (
+            <Link
+              to={`/chat/${id}_${user.email}`}
+              className="detalhes-btn-chat"
+            >
+              💬 Conversar com o produtor
+            </Link>
+          ) : (
+            <button
+              className="detalhes-btn-chat detalhes-btn-desabilitado"
+              onClick={() => navigate("/login")}
+            >
+              🔒 Faça login para conversar
+            </button>
+          )}
         </div>
       )}
     </div>

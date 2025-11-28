@@ -9,6 +9,7 @@ const Home = () => {
   const [busca, setBusca] = useState("");
   const [precoMin, setPrecoMin] = useState("");
   const [precoMax, setPrecoMax] = useState("");
+  
 
   useEffect(() => {
     const fetchData = async () => {

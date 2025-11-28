@@ -2,21 +2,21 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
-
-  // EVITA PLAYWRIGHT LER TESTES DO PROJETO INTEIRO
-  testMatch: "**/tests/e2e/**/*.e2e.js",
-
+  testMatch: "**/*.e2e.js",
   testIgnore: [
-    "**/node_modules/**",
-    "**/*.test.*",
-    "**/*.spec.*",
-    "**/tests/unit/**",
-    "**/tests/integration/**",
-    "**/tests/__mocks__/**"
+    "**/*.test.js",      
+    "**/*.spec.js",      
+    "**/unit/**",
+    "**/integration/**"
   ],
-
+  webServer: {
+    command: "npm run dev",
+    port: 5173,
+    reuseExistingServer: !process.env.CI,
+  },
   use: {
     headless: false,
+    slowMo: 2000,
     baseURL: "http://localhost:5173",
     screenshot: "only-on-failure",
     video: "retain-on-failure"

@@ -30,7 +30,7 @@ const NovoProduto = () => {
         imagens
       );
 
-      alert("✅ Produto cadastrado com sucesso!");
+      alert("Produto cadastrado com sucesso!");
       setNome("");
       setPreco("");
       setDescricao("");
