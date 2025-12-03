@@ -61,9 +61,7 @@ export const sendMessage = async (chatId, remetenteEmail, destinatarioEmail, tex
   }
 };
 
-/* ============================================================
-   🔵 3 — Escutar mensagens em tempo real
-============================================================ */
+
 export const listenMessages = (chatId, callback) => {
   try {
     const mensagensRef = collection(db, "mensagens");
