@@ -13,15 +13,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-      
+          node-version: 20
+
       - uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run Vitest with coverage
-        run: npx vitest run --coverage
+        run: node --experimental-vm-modules ./node_modules/vitest/vitest.mjs run --coverage
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
@@ -31,7 +31,7 @@ jobs:
           args: >
             -Dsonar.projectKey=pedrofonseca1227_LifeGarden
             -Dsonar.organization=pedrofonseca1227
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.sources=src
             -Dsonar.tests=tests
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.exclusions=**/node_modules/**,**/dist/**
