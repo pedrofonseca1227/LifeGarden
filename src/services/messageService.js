@@ -9,13 +9,8 @@ import {
   getDocs,
   doc,
   getDoc,
-  deleteDoc,
 } from "firebase/firestore";
 
-/* ============================================================
-   🔵 1 — Validar acesso ao chat
-   chatId no formato: produtoId_emailDoComprador
-============================================================ */
 export const validarAcessoChat = async (chatId, userEmail) => {
   try {
     if (!chatId || !chatId.includes("_")) return false;
@@ -42,9 +37,6 @@ export const validarAcessoChat = async (chatId, userEmail) => {
   }
 };
 
-/* ============================================================
-   🔵 2 — Enviar mensagem
-============================================================ */
 export const sendMessage = async (
   chatId,
   remetenteEmail,
@@ -67,9 +59,6 @@ export const sendMessage = async (
   }
 };
 
-/* ============================================================
-   🔵 3 — Ouvir mensagens em tempo real
-============================================================ */
 export const listenMessages = (chatId, callback) => {
   try {
     const mensagensRef = collection(db, "mensagens");
@@ -93,9 +82,6 @@ export const listenMessages = (chatId, callback) => {
   }
 };
 
-/* ============================================================
-   🔵 4 — Buscar conversas do usuário
-============================================================ */
 export const getUserChats = async (userEmail) => {
   try {
     const mensagensRef = collection(db, "mensagens");
@@ -108,7 +94,7 @@ export const getUserChats = async (userEmail) => {
     const chats = new Map();
 
     const processar = (snap) => {
-      snap.forEach((doc_) => {
+      snap.docs.forEach((doc_) => {
         const m = doc_.data();
         const chatId = m.chatId;
 
@@ -140,28 +126,3 @@ export const getUserChats = async (userEmail) => {
   }
 };
 
-/* ============================================================
-   🔴 5 — Apagar conversa
-============================================================ */
-export const deleteChat = async (chatId, userEmail) => {
-  const permitido = await validarAcessoChat(chatId, userEmail);
-
-  if (!permitido) {
-    throw new Error("Usuário não autorizado a excluir.");
-  }
-
-  try {
-    const mensagensRef = collection(db, "mensagens");
-    const q = query(mensagensRef, where("chatId", "==", chatId));
-
-    const snap = await getDocs(q);
-
-    const promises = snap.docs.map((d) => deleteDoc(d.ref));
-
-    await Promise.all(promises);
-
-    return true;
-  } catch {
-    throw new Error("Erro ao deletar conversa.");
-  }
-};
