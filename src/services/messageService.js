@@ -42,7 +42,6 @@ export const validarAcessoChat = async (chatId, userEmail) => {
   }
 };
 
-
 /* ============================================================
    🔵 2 — Enviar mensagem
 ============================================================ */
@@ -63,11 +62,10 @@ export const sendMessage = async (
       createdAt: new Date(),
     });
 
-  } catch (err) {
+  } catch {
     throw new Error("Erro ao enviar mensagem");
   }
 };
-
 
 /* ============================================================
    🔵 3 — Ouvir mensagens em tempo real
@@ -91,10 +89,9 @@ export const listenMessages = (chatId, callback) => {
     });
 
   } catch {
-    return null; // facilita testes e evita branch morto
+    return null;
   }
 };
-
 
 /* ============================================================
    🔵 4 — Buscar conversas do usuário
@@ -142,7 +139,6 @@ export const getUserChats = async (userEmail) => {
     return [];
   }
 };
-
 
 /* ============================================================
    🔴 5 — Apagar conversa
