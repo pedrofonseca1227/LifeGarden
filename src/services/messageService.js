@@ -14,13 +14,14 @@ import {
 
 /* ============================================================
    🔵 1 — Validar acesso ao chat
-   Formato do chatId: produtoId_emailDoComprador
+   chatId no formato: produtoId_emailDoComprador
 ============================================================ */
 export const validarAcessoChat = async (chatId, userEmail) => {
   try {
+    if (!chatId || !chatId.includes("_")) return false;
+
     const [produtoId, compradorEmail] = chatId.split("_");
 
-    // Se o formato estiver errado → bloqueia
     if (!produtoId || !compradorEmail) return false;
 
     const ref = doc(db, "produtos", produtoId);
@@ -31,23 +32,30 @@ export const validarAcessoChat = async (chatId, userEmail) => {
     const produto = snap.data();
     const produtorEmail = produto.produtorEmail;
 
-    // Apenas comprador OU produtor podem acessar
-    return userEmail === compradorEmail || userEmail === produtorEmail;
+    return (
+      userEmail === compradorEmail ||
+      userEmail === produtorEmail
+    );
 
-  } catch (err) {
-    console.error("Erro validarAcessoChat:", err);
+  } catch {
     return false;
   }
 };
 
+
 /* ============================================================
    🔵 2 — Enviar mensagem
 ============================================================ */
-export const sendMessage = async (chatId, remetenteEmail, destinatarioEmail, texto) => {
+export const sendMessage = async (
+  chatId,
+  remetenteEmail,
+  destinatarioEmail,
+  texto
+) => {
   try {
     const mensagensRef = collection(db, "mensagens");
 
-    await addDoc(mensagensRef, {
+    return await addDoc(mensagensRef, {
       chatId,
       remetenteEmail,
       destinatarioEmail,
@@ -56,13 +64,13 @@ export const sendMessage = async (chatId, remetenteEmail, destinatarioEmail, tex
     });
 
   } catch (err) {
-    console.error("Erro ao enviar mensagem:", err);
-    throw err;
+    throw new Error("Erro ao enviar mensagem");
   }
 };
 
+
 /* ============================================================
-   🔵 3 — Escutar mensagens em tempo real
+   🔵 3 — Ouvir mensagens em tempo real
 ============================================================ */
 export const listenMessages = (chatId, callback) => {
   try {
@@ -82,10 +90,11 @@ export const listenMessages = (chatId, callback) => {
       callback(msgs);
     });
 
-  } catch (err) {
-    console.error("Erro listenMessages:", err);
+  } catch {
+    return null; // facilita testes e evita branch morto
   }
 };
+
 
 /* ============================================================
    🔵 4 — Buscar conversas do usuário
@@ -106,14 +115,17 @@ export const getUserChats = async (userEmail) => {
         const m = doc_.data();
         const chatId = m.chatId;
 
-        const ultimaData = m.createdAt?.toDate?.() || m.createdAt;
+        const dataMsg =
+          m.createdAt?.toDate?.() || m.createdAt || new Date(0);
 
-        if (!chats.has(chatId) || ultimaData > chats.get(chatId).ultimaMensagemData) {
+        const existente = chats.get(chatId);
+
+        if (!existente || dataMsg > existente.ultimaMensagemData) {
           chats.set(chatId, {
             chatId,
             ultimaMensagem: m.texto,
             ultimoRemetente: m.remetenteEmail,
-            ultimaMensagemData: ultimaData,
+            ultimaMensagemData: dataMsg,
           });
         }
       });
@@ -122,36 +134,38 @@ export const getUserChats = async (userEmail) => {
     processar(s1);
     processar(s2);
 
-    return [...chats.values()].sort((a, b) => b.ultimaMensagemData - a.ultimaMensagemData);
+    return [...chats.values()].sort(
+      (a, b) => b.ultimaMensagemData - a.ultimaMensagemData
+    );
 
-  } catch (err) {
-    console.error("Erro getUserChats:", err);
+  } catch {
     return [];
   }
 };
+
 
 /* ============================================================
    🔴 5 — Apagar conversa
 ============================================================ */
 export const deleteChat = async (chatId, userEmail) => {
+  const permitido = await validarAcessoChat(chatId, userEmail);
+
+  if (!permitido) {
+    throw new Error("Usuário não autorizado a excluir.");
+  }
+
   try {
-    const permitido = await validarAcessoChat(chatId, userEmail);
-
-    if (!permitido) {
-      throw new Error("Usuário não autorizado a excluir.");
-    }
-
     const mensagensRef = collection(db, "mensagens");
     const q = query(mensagensRef, where("chatId", "==", chatId));
 
     const snap = await getDocs(q);
-    const deletes = snap.docs.map((d) => deleteDoc(d.ref));
 
-    await Promise.all(deletes);
-    console.log("Conversa excluída com sucesso:", chatId);
+    const promises = snap.docs.map((d) => deleteDoc(d.ref));
 
-  } catch (err) {
-    console.error("Erro deleteChat:", err);
-    throw err;
+    await Promise.all(promises);
+
+    return true;
+  } catch {
+    throw new Error("Erro ao deletar conversa.");
   }
 };

@@ -17,7 +17,7 @@ vi.mock("firebase/firestore", () => ({
   deleteDoc: vi.fn(() => Promise.resolve()),
   updateDoc: vi.fn(() => Promise.resolve()),
 }));
-describe("Teste de Integração - Cadastro de Produto", () => {
+describe("Teste de Integração Cadastro de Produto", () => {
   it("deve enviar os dados corretos para o Firebase", async () => {
     const produto = {
       nome: "Teste Produto",
