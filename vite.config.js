@@ -21,9 +21,9 @@ export default defineConfig({
       reporter: ['lcov', 'text', 'json', 'html'],
       reportsDirectory: './coverage',
       exclude: [
-      "src/services/messageService.js",
-      "src/services/productService.js",
-      "src/services/userService.js",
+      "src/pages/**",
+      "src/components/**",
+      "src/hooks/**",
     ],
     }
   }
