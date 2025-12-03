@@ -24,6 +24,12 @@ export default defineConfig({
       "src/pages/**",
       "src/components/**",
       "src/hooks/**",
+      "src/styles/**",
+      "src/contexts/**",
+      "src/routes/**",
+      "src/layouts/**",
+      "src/assets/**",
+
     ],
     }
   }
